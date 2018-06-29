@@ -32,7 +32,7 @@ def check_asterisk_iax2_peers(item, params, info):
     asteriskPeerLatencywarn, asteriskPeerLatencycrit = asteriskPeerLatencyparams
 
   for line in info:
-    perfdata = [ ( "asteriskPeerLatency", saveint(line[2]), asteriskPeerLatencywarn, asteriskPeerLatencycrit ) ]
+    perfdata = [ ( "asteriskPeerLatency", saveint(line[5]), asteriskPeerLatencywarn, asteriskPeerLatencycrit ) ]
     if line[4] == "OK":
       return (0, "State is %s, latency is %dms" % (line[4], saveint(line[5])), perfdata)
     else:
