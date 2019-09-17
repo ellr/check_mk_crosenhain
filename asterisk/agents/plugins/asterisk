@@ -71,5 +71,18 @@ sub doreg {
   }
 }
 
-doreg;
+sub dochannels {
+  my $channelsoutput = `asterisk -rx 'core show channels'`;
+  my $channelsstatus = $?;
+
+  print "<<<asterisk_channels>>>\n";
+  if ($channelsstatus) {
+    print "50 Unable to connect to remote asterisk\n";
+  } else {
+    print "$channelsoutput";
+  }
+}
+
 dopeer;
+doreg;
+dochannels;
