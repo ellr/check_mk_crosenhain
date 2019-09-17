@@ -11,7 +11,7 @@ sub dopeer {
     print "50 Unable to connect to remote asterisk\n";
   } else {
     my @peeroutput = split (/\n/,$peeroutput);
-    map{ 
+    map{
       if ( m/^(.{26})(.{40})(.{19})(.{9})(.*)$/ ) {
         my $name   = $1;
         my $host   = $2;
@@ -23,12 +23,12 @@ sub dopeer {
         $host   =~ s/^([^ ]*).*$/$1/;
         $port   =~ s/^([^ ]*).*$/$1/;
 
-	my $statusname = $status;
-	my $latency = 0;
+        my $statusname = $status;
+        my $latency = 0;
 
         if ($status =~ m/([^ ]+) \(([0-9]+) ms\)/) {
-	  $statusname = $1;
-	  $latency = $2;
+          $statusname = $1;
+          $latency = $2;
         }
 
         print "$name\t$host\t$port\t$statusname\t$latency\n";
@@ -39,6 +39,45 @@ sub dopeer {
   }
 }
 
+sub doiax2peer {
+  my $iaxoutput= `asterisk -rx 'iax2 show peers'`;
+  my $iaxstatus = $?;
+
+  print "<<<asterisk_iax2_peers>>>\n";
+  if ($iaxstatus) {
+    print "50 Unable to connect to remote asterisk\n";
+  } else {
+  my @iaxoutput = split (/\n/,$iaxoutput);
+  map{
+      if ( m/^(.{15})(.{22})(.{18})(.{12})(.*)$/ ) {
+        my $name   = $1;
+        my $host   = $2;
+        my $mask   = $3;
+        my $port   = $4;
+        my $status = $5;
+
+        #print $host;
+        $name   =~ s/^([^ ]*).*$/$1/;
+        #$host   =~ s/^([^ ]*).*$/$1/;
+        $port   =~ s/^([^ ]*).*$/$1/;
+
+        my $statusname = $status;
+        my $latency = 0;
+
+        if ($status =~ m/([^ ]+) \(([0-9]+) ms\)/) {
+          $statusname = $1;
+          $latency = $2;
+        }
+          print "$name\t$host\t$port\t$statusname\t$latency\n";
+      } else {
+        print "50 Unable to connect to remote asterisk\n";
+      }
+    } @iaxoutput[1 .. $#iaxoutput-1];
+
+
+
+  }
+}
 
 sub doreg {
   my $regoutput = `asterisk -rx 'sip show registry'`;
@@ -49,7 +88,7 @@ sub doreg {
     print "50 Unable to connect to remote asterisk\n";
   } else {
     my @regoutput = split (/\n/,$regoutput);
-    map{ 
+    map{
       if ( m/^(.{40})(.{7})(.{15})(.{8})(.{21})(.{25})$/ ) {
         my $host    = $1;
         my $dnsmgr  = $2;
@@ -86,3 +125,4 @@ sub dochannels {
 dopeer;
 doreg;
 dochannels;
+doiax2peer;
