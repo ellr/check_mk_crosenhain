@@ -1,5 +1,5 @@
 # check_mk_checks
-Some check_mk checks I've created
+Some check_mk checks crosenhain has created
 
 ## Asterisk
 We created these for our use case, feel free to suggest improvements! 
