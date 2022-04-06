@@ -1,5 +1,5 @@
-#!/usr/bin/python
-# -*- encoding: utf-8; py-indent-offset: 2 -*-
+#!/usr/bin/env python3
+# -*- encoding: utf-8; py-indent-offset: 4 -*-
 
 # (c) 2019 Heinlein Support GmbH
 #          Robert Sander <r.sander@heinlein-support.de>
@@ -14,6 +14,7 @@
 # License along with GNU Make; see the file  COPYING.  If  not,  write
 # to the Free Software Foundation, Inc., 51 Franklin St,  Fifth Floor,
 # Boston, MA 02110-1301 USA.
+
 
 def inventory_asterisk_channels(info):
   if len(info) > 1:
