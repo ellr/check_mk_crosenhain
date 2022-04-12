@@ -64,7 +64,7 @@ sub doiax2peer {
         my $statusname = $status;
         my $latency = 0;
 
-        if ($status =~ m/([^ ]+) \(([0-9]+) ms\)/) {
+        if ($status =~ m/([^ ]+) \(([0-9]+) [M,m]{1}s\)/) {
           $statusname = $1;
           $latency = $2;
         }

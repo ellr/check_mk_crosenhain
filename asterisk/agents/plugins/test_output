@@ -1,0 +1,163 @@
+#!/usr/bin/perl
+use warnings;
+use strict;
+
+sub dopeer {
+  my $peeroutput = "Name/username             Host                                    Dyn Forcerport ACL Port     Status      Description                      
+100                       (Unspecified)                            D   a             0        UNKNOWN                                      
+111                       (Unspecified)                            D   a             0        UNKNOWN                                      
+1111                      (Unspecified)                            D   a             0        Unmonitored                                  
+114                       (Unspecified)                            D   a             0        UNKNOWN                                      
+12                        (Unspecified)                            D   a             0        UNKNOWN                                      
+12-2                      (Unspecified)                            D   a             0        UNKNOWN                                      
+123-1                     (Unspecified)                            D   a             0        UNKNOWN                                      
+123-2                     (Unspecified)                            D   a             0        UNKNOWN                                      
+14-3                      (Unspecified)                            D   a             0        UNKNOWN                                      
+14-4                      (Unspecified)                            D   a             0        UNKNOWN                                      
+15/15                     10.52.12.55                              D   a             5060     Unmonitored                                  
+15-1                      (Unspecified)                            D   a             0        UNKNOWN                                      
+16                        (Unspecified)                            D   a             0        UNKNOWN                                      
+16-1                      (Unspecified)                            D   a             0        UNKNOWN                                      
+18                        (Unspecified)                            D   a             0        UNKNOWN                                      
+18-1                      (Unspecified)                            D   a             0        UNKNOWN                                      
+180-1                     (Unspecified)                            D   a             0        UNKNOWN                                      
+19                        (Unspecified)                            D   a             0        UNKNOWN                                      
+21-1                      (Unspecified)                            D   a             0        UNKNOWN                                      
+21-2/21-2                 (Unspecified)                            D   a             0        UNKNOWN                                      
+21-3                      (Unspecified)                            D   a             0        UNKNOWN                                      
+24                        (Unspecified)                            D   a             0        Unmonitored                                  
+24-1                      (Unspecified)                            D   a             0        UNKNOWN                                      
+305-1                     (Unspecified)                            D   a             0        UNKNOWN                                      
+305-2                     (Unspecified)                            D   a             0        UNKNOWN                                      
+49-1/49-1                 10.52.12.8                               D   a             5060     OK (23 ms)                                   
+50-4/50-4                 10.52.12.22                              D   a             5060     OK (29 ms)                                   
+50-5/50-5                 10.52.12.87                              D   a             5060     OK (13 ms)                                   
+51                        (Unspecified)                            D   a             0        UNKNOWN                                      
+52-1/52-1                 10.52.12.3                               D   a             5062     OK (53 ms)                                   
+99001-1                   (Unspecified)                            D   N             0        UNKNOWN                                      
+99002-1                   (Unspecified)                            D   N             0        UNKNOWN                                      
+99003-1                   (Unspecified)                            D   N             0        UNKNOWN                                      
+99004-1                   (Unspecified)                            D   N             0        UNKNOWN                                      
+99005-1                   (Unspecified)                            D   N             0        UNKNOWN                                      
+99006-1                   (Unspecified)                            D   N             0        UNKNOWN                                      
+99007-1                   (Unspecified)                            D   N             0        UNKNOWN                                      
+99008-1                   (Unspecified)                            D   N             0        UNKNOWN                                      
+99009-1                   (Unspecified)                            D   N             0        UNKNOWN                                      
+99010-1                   (Unspecified)                            D   N             0        UNKNOWN                                      
+linkedPBX_86/87           10.52.25.6                                   a             5060     UNREACHABLE                                  
+prSIP_2/600815            10.52.40.38                                  a             5060     OK (1 ms)                                    
+42 sip peers [Monitored: 5 online, 34 offline Unmonitored: 1 online, 2 offline]
+";
+  my $peerstatus = $?;
+
+  print "<<<asterisk_peers>>>\n";
+  my @peeroutput = split (/\n/,$peeroutput);
+  map{
+    if ( m/^(.{26})(.{40})(.{19})(.{9})(.*)$/ ) {
+      my $name   = $1;
+      my $host   = $2;
+      my $other  = $3;
+      my $port   = $4;
+      my $status = $5;
+
+      $name   =~ s/^([^ ]*).*$/$1/;
+      $host   =~ s/^([^ ]*).*$/$1/;
+      $port   =~ s/^([^ ]*).*$/$1/;
+
+      my $statusname = $status;
+      my $latency = 0;
+
+      if ($status =~ m/([^ ]+) \(([0-9]+) ms\)/) {
+        $statusname = $1;
+        $latency = $2;
+      }
+
+      print "$name\t$host\t$port\t$statusname\t$latency\n";
+    } else {
+      print "50 Unable to connect to remote asterisk\n";
+    }
+  } @peeroutput[1 .. $#peeroutput-1];
+}
+
+sub doiax2peer {
+  my $iaxoutput= "Name/Username    Host                Mask              Port          Status
+voxlink/pbx27    195.211.101.70 (S)  255.255.255.255   4569 (T)      OK (6 Ms)
+1 tax2 peers [1 online, © offline, 0 unmonitored]\n";
+  my $iaxstatus = $?;
+
+  print "<<<asterisk_iax2_peers>>>\n";
+  my @iaxoutput = split (/\n/,$iaxoutput);
+  map{
+      if ( m/^(.{15})(.{22})(.{18})(.{12})(.*)$/ ) {
+        my $name   = $1;
+        my $host   = $2;
+        my $mask   = $3;
+        my $port   = $4;
+        my $status = $5;
+
+        print("status: $status \n");
+
+        #print $host;
+        $name   =~ s/^([^ ]*).*$/$1/;
+        #$host   =~ s/^([^ ]*).*$/$1/;
+        $port   =~ s/^([^ ]*).*$/$1/;
+
+        my $statusname = $status;
+        my $latency = 0;
+
+        if ($status =~ m/([^ ]+) \(([0-9]+) [M,m]{1}s\)/) {
+          $statusname = $1;
+          $latency = $2;
+        }
+          print "$name\t$host\t$port\t$statusname\t$latency\n";
+      } else {
+        print "50 Unable to connect to remote asterisk\n";
+      }
+    } @iaxoutput[1 .. $#iaxoutput-1];
+
+}
+
+sub doreg {
+  my $regoutput = "Host                                    dnsmgr Username      Refresh  State                Reg.Time                 
+sip2sip.info:5060                       Y      22384668          105  Registered           Mon, 21 Dec 2020 08:35:02
+1 SIP registrations.\n";
+  my $regstatus = $?;
+
+  print "<<<asterisk_registry>>>\n";
+  
+  my @regoutput = split (/\n/,$regoutput);
+  map{
+    if ( m/^(.{40})(.{7})(.{15})(.{8})(.{21})(.{25})$/ ) {
+      my $host    = $1;
+      my $dnsmgr  = $2;
+      my $user    = $3;
+      my $refresh = $4;
+      my $state   = $5;
+      my $regtime = $6;
+
+      $host    =~ s/^([^ ]*).*$/$1/;
+      $user    =~ s/^([^ ]*).*$/$1/;
+      $state   =~ s/^([^ ]*).*$/$1/;
+      $regtime =~ s/^([^ ]*).*$/$1/;
+
+      print "$user\@$host\t$state\n";
+    } else {
+      print "50 Unable to connect to remote asterisk\n";
+    }
+  } @regoutput[1 .. $#regoutput-1];
+  
+}
+
+sub dochannels {
+  my $channelsoutput = `asterisk -rx 'core show channels'`;
+  my $channelsstatus = $?;
+
+  print "<<<asterisk_channels>>>\n";
+  if ($channelsstatus) {
+    print "50 Unable to connect to remote asterisk\n";
+  } else {
+    print "$channelsoutput";
+  }
+}
+
+doiax2peer;
